@@ -1,0 +1,36 @@
+import 'dart:async';
+
+class Cake {}
+
+class Order {
+  String type;
+  Order(this.type);
+}
+
+void main() {
+  //Chocolate Cacke Factory
+  final controller = new StreamController();
+
+  //Customer Order
+  final order = new Order('chocolate');
+
+  //Backer for the factory
+  final baker =
+      new StreamTransformer.fromHandlers(handleData: (cakeType, sink) {
+    if (cakeType == 'chocolate') {
+      sink.add(new Cake());
+    } else {
+      sink.addError('Hey i cant bake your cake type!!!');
+    }
+  });
+
+  //Customer Order Taker
+  controller.sink.add(order);
+
+  //Customer Order Inspector
+  controller.stream
+      .map((order) => order.type) // Inspect the Order
+      .transform(baker) // Handover to baker
+      .listen((cake) => print('Hey here is you cake'),
+          onError: (err) => print(err)); //delevery boy to deliver the order
+}
